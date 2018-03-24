@@ -2,8 +2,15 @@ package Szotar;
 
 import java.io.FileInputStream;
 import java.io.IOException;
+import java.sql.Connection;
+import java.sql.DriverManager;
+import java.sql.PreparedStatement;
+import java.sql.ResultSet;
+import java.sql.SQLException;
 import java.util.Properties;
 import javax.swing.JOptionPane;
+import javax.swing.JTable;
+import javax.swing.table.DefaultTableModel;
 
 /**
  *
@@ -35,6 +42,28 @@ public class DB {
             JOptionPane.showMessageDialog(null, ex.getMessage());
             dbUrl = "jdbc:mysql://localhost:3306/szotar"
                    + "?useUnicode=true&characterEncoding=UTF-8";
+        }
+    }
+    
+    public void beolvas(JTable tbl, String s) {
+        final DefaultTableModel tm = (DefaultTableModel)tbl.getModel();
+
+        try (Connection kapcs = DriverManager.getConnection(dbUrl,user,pass);
+             PreparedStatement parancs = kapcs.prepareStatement(s);
+             ResultSet eredmeny = parancs.executeQuery()) {
+            tm.setRowCount(0);
+            while (eredmeny.next()) {
+                Object sor[] = {
+                    eredmeny.getInt("szoID"),
+                    eredmeny.getString("lecke"),
+                    eredmeny.getString("angol"),
+                    eredmeny.getString("magyar")
+                };
+                tm.addRow(sor);
+            }            
+        } catch (SQLException ex) {
+            JOptionPane.showMessageDialog(null, ex.getMessage());
+            System.exit(1);
         }
     }
 }

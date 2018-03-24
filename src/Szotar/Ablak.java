@@ -8,11 +8,18 @@ public class Ablak extends javax.swing.JFrame {
     
     DB ab;
 
-    /**
-     * Creates new form Ablak
-     */
     public Ablak() {
         initComponents();
+        ab = new DB();
+        ab.beolvas(tblSzavak, lekerdez());
+    }
+   
+    private String lekerdez() {
+        String q = "";
+        q = q + " lecke LIKE '%" + txtLeckeSzur.getText().trim() + "%' AND";
+        q = q + " angol LIKE '%" + txtAngolSzur.getText().trim() + "%' AND";
+        q = q + " magyar LIKE '%" + txtMagyarSzur.getText().trim() + "%' ";
+        return "SELECT * FROM szavak WHERE " + q + " ORDER BY lecke;";
     }
 
     /**
@@ -131,11 +138,11 @@ public class Ablak extends javax.swing.JFrame {
                 .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                     .addComponent(jScrollPane1, javax.swing.GroupLayout.DEFAULT_SIZE, 700, Short.MAX_VALUE)
                     .addGroup(layout.createSequentialGroup()
-                        .addComponent(txtLeckeSzur, javax.swing.GroupLayout.PREFERRED_SIZE, 103, javax.swing.GroupLayout.PREFERRED_SIZE)
+                        .addComponent(txtLeckeSzur, javax.swing.GroupLayout.PREFERRED_SIZE, 99, javax.swing.GroupLayout.PREFERRED_SIZE)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addComponent(txtAngolSzur)
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(txtMagyarSzur, javax.swing.GroupLayout.PREFERRED_SIZE, 293, javax.swing.GroupLayout.PREFERRED_SIZE))
+                        .addComponent(txtMagyarSzur, javax.swing.GroupLayout.PREFERRED_SIZE, 297, javax.swing.GroupLayout.PREFERRED_SIZE))
                     .addGroup(layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING)
                             .addComponent(jLabel2)
@@ -229,10 +236,8 @@ public class Ablak extends javax.swing.JFrame {
         //</editor-fold>
 
         /* Create and display the form */
-        java.awt.EventQueue.invokeLater(new Runnable() {
-            public void run() {
-                new Ablak().setVisible(true);
-            }
+        java.awt.EventQueue.invokeLater(() -> {
+            new Ablak().setVisible(true);
         });
     }
 
