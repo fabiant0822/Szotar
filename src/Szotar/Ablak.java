@@ -1,5 +1,7 @@
 package Szotar;
 
+import java.awt.event.KeyEvent;
+
 /**
  *
  * @author Fabian Tamas 1.0
@@ -16,10 +18,49 @@ public class Ablak extends javax.swing.JFrame {
    
     private String lekerdez() {
         String q = "";
-        q = q + " lecke LIKE '%" + txtLeckeSzur.getText().trim() + "%' AND";
+        if (!txtLeckeSzur.getText().trim().isEmpty())
+            q = q + " lecke LIKE '%" + txtLeckeSzur.getText().trim() + "%' AND";
         q = q + " angol LIKE '%" + txtAngolSzur.getText().trim() + "%' AND";
         q = q + " magyar LIKE '%" + txtMagyarSzur.getText().trim() + "%' ";
         return "SELECT * FROM szavak WHERE " + q + " ORDER BY lecke;";
+    }
+    
+    private void tablabol() {
+        int i = tblSzavak.getSelectedRow();
+        if (i == -1) return;
+        Object e = tblSzavak.getValueAt(i, 1);
+        if (e != null)
+            txtLecke.setText(e.toString());
+        else 
+            txtLecke.setText("");
+        txtAngol.setText(tblSzavak.getValueAt(i, 2).toString());
+        txtMagyar.setText(tblSzavak.getValueAt(i, 3).toString());
+    }
+    
+    private void uj_kijelol() {
+        int sordb = tblSzavak.getRowCount();
+        int max = 0;
+        int sor = 0;
+        for (int i = 0; i < sordb; i++) {
+            int n = Integer.parseInt(tblSzavak.getValueAt(i, 0).toString());
+            if (n > max) {
+                max = n;
+                sor = i;
+            }
+        }
+        tblSzavak.setRowSelectionInterval(sor, sor);
+        tablabol();
+    }
+    
+   private void kijelol(int szoid) {
+        int sordb = tblSzavak.getRowCount();
+        for (int i = 0; i < sordb; i++) {
+            int id = Integer.parseInt(tblSzavak.getValueAt(i, 0).toString());
+            if (id == szoid) {
+                tblSzavak.setRowSelectionInterval(i, i);
+                tablabol();
+            }
+        }
     }
 
     /**
@@ -42,21 +83,36 @@ public class Ablak extends javax.swing.JFrame {
         txtLecke = new javax.swing.JTextField();
         txtAngol = new javax.swing.JTextField();
         txtMagyar = new javax.swing.JTextField();
-        jButton1 = new javax.swing.JButton();
-        jButton2 = new javax.swing.JButton();
-        jButton3 = new javax.swing.JButton();
-        jButton4 = new javax.swing.JButton();
-        jButton5 = new javax.swing.JButton();
+        btnTorol = new javax.swing.JButton();
+        btnSzurok = new javax.swing.JButton();
+        btnHozzaad = new javax.swing.JButton();
+        btnModosit = new javax.swing.JButton();
+        btnUj = new javax.swing.JButton();
 
         setDefaultCloseOperation(javax.swing.WindowConstants.EXIT_ON_CLOSE);
         setTitle("Szótárfüzet");
         setResizable(false);
 
         txtLeckeSzur.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        txtLeckeSzur.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtLeckeSzurActionPerformed(evt);
+            }
+        });
 
         txtAngolSzur.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        txtAngolSzur.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtAngolSzurActionPerformed(evt);
+            }
+        });
 
         txtMagyarSzur.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        txtMagyarSzur.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                txtMagyarSzurActionPerformed(evt);
+            }
+        });
 
         tblSzavak.setAutoCreateRowSorter(true);
         tblSzavak.setModel(new javax.swing.table.DefaultTableModel(
@@ -75,10 +131,18 @@ public class Ablak extends javax.swing.JFrame {
                 return canEdit [columnIndex];
             }
         });
-        tblSzavak.setColumnSelectionAllowed(true);
         tblSzavak.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
+        tblSzavak.addMouseListener(new java.awt.event.MouseAdapter() {
+            public void mouseReleased(java.awt.event.MouseEvent evt) {
+                tblSzavakMouseReleased(evt);
+            }
+        });
+        tblSzavak.addKeyListener(new java.awt.event.KeyAdapter() {
+            public void keyReleased(java.awt.event.KeyEvent evt) {
+                tblSzavakKeyReleased(evt);
+            }
+        });
         jScrollPane1.setViewportView(tblSzavak);
-        tblSzavak.getColumnModel().getSelectionModel().setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
         if (tblSzavak.getColumnModel().getColumnCount() > 0) {
             tblSzavak.getColumnModel().getColumn(0).setMinWidth(0);
             tblSzavak.getColumnModel().getColumn(0).setMaxWidth(0);
@@ -108,26 +172,51 @@ public class Ablak extends javax.swing.JFrame {
 
         txtMagyar.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
 
-        jButton1.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jButton1.setMnemonic('t');
-        jButton1.setText("Töröl");
+        btnTorol.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        btnTorol.setMnemonic('t');
+        btnTorol.setText("Töröl");
+        btnTorol.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnTorolActionPerformed(evt);
+            }
+        });
 
-        jButton2.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jButton2.setMnemonic('s');
-        jButton2.setText("Szűrőket törli");
+        btnSzurok.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        btnSzurok.setMnemonic('s');
+        btnSzurok.setText("Szűrőket törli");
+        btnSzurok.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnSzurokActionPerformed(evt);
+            }
+        });
 
-        jButton3.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jButton3.setMnemonic('h');
-        jButton3.setText("Hozzáad");
+        btnHozzaad.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        btnHozzaad.setMnemonic('h');
+        btnHozzaad.setText("Hozzáad");
+        btnHozzaad.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnHozzaadActionPerformed(evt);
+            }
+        });
 
-        jButton4.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jButton4.setMnemonic('d');
-        jButton4.setText("Módosít");
-        jButton4.setActionCommand("Módosít");
+        btnModosit.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        btnModosit.setMnemonic('d');
+        btnModosit.setText("Módosít");
+        btnModosit.setActionCommand("Módosít");
+        btnModosit.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnModositActionPerformed(evt);
+            }
+        });
 
-        jButton5.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
-        jButton5.setMnemonic('j');
-        jButton5.setText("Új");
+        btnUj.setFont(new java.awt.Font("Tahoma", 0, 12)); // NOI18N
+        btnUj.setMnemonic('j');
+        btnUj.setText("Új");
+        btnUj.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(java.awt.event.ActionEvent evt) {
+                btnUjActionPerformed(evt);
+            }
+        });
 
         javax.swing.GroupLayout layout = new javax.swing.GroupLayout(getContentPane());
         getContentPane().setLayout(layout);
@@ -157,13 +246,13 @@ public class Ablak extends javax.swing.JFrame {
                             .addComponent(txtAngol))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.TRAILING, false)
-                            .addComponent(jButton3, javax.swing.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
-                            .addComponent(jButton4, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton5, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
+                            .addComponent(btnHozzaad, javax.swing.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE)
+                            .addComponent(btnModosit, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnUj, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.LEADING, false)
-                            .addComponent(jButton1, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
-                            .addComponent(jButton2, javax.swing.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE))))
+                            .addComponent(btnTorol, javax.swing.GroupLayout.DEFAULT_SIZE, javax.swing.GroupLayout.DEFAULT_SIZE, Short.MAX_VALUE)
+                            .addComponent(btnSzurok, javax.swing.GroupLayout.DEFAULT_SIZE, 127, Short.MAX_VALUE))))
                 .addContainerGap())
         );
         layout.setVerticalGroup(
@@ -192,14 +281,14 @@ public class Ablak extends javax.swing.JFrame {
                             .addComponent(jLabel1)))
                     .addGroup(javax.swing.GroupLayout.Alignment.TRAILING, layout.createSequentialGroup()
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton1)
-                            .addComponent(jButton3))
+                            .addComponent(btnTorol)
+                            .addComponent(btnHozzaad))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
                         .addGroup(layout.createParallelGroup(javax.swing.GroupLayout.Alignment.BASELINE)
-                            .addComponent(jButton2)
-                            .addComponent(jButton4))
+                            .addComponent(btnSzurok)
+                            .addComponent(btnModosit))
                         .addPreferredGap(javax.swing.LayoutStyle.ComponentPlacement.RELATED)
-                        .addComponent(jButton5)
+                        .addComponent(btnUj)
                         .addGap(1, 1, 1)))
                 .addContainerGap())
         );
@@ -207,6 +296,72 @@ public class Ablak extends javax.swing.JFrame {
         pack();
         setLocationRelativeTo(null);
     }// </editor-fold>//GEN-END:initComponents
+
+    private void txtLeckeSzurActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtLeckeSzurActionPerformed
+        ab.beolvas(tblSzavak, lekerdez());
+    }//GEN-LAST:event_txtLeckeSzurActionPerformed
+
+    private void txtAngolSzurActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtAngolSzurActionPerformed
+        ab.beolvas(tblSzavak, lekerdez());
+    }//GEN-LAST:event_txtAngolSzurActionPerformed
+
+    private void txtMagyarSzurActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_txtMagyarSzurActionPerformed
+        ab.beolvas(tblSzavak, lekerdez());
+    }//GEN-LAST:event_txtMagyarSzurActionPerformed
+
+    private void btnSzurokActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnSzurokActionPerformed
+        txtLeckeSzur.setText("");
+        txtAngolSzur.setText("");
+        txtMagyarSzur.setText("");
+        ab.beolvas(tblSzavak, lekerdez());
+    }//GEN-LAST:event_btnSzurokActionPerformed
+
+    private void tblSzavakMouseReleased(java.awt.event.MouseEvent evt) {//GEN-FIRST:event_tblSzavakMouseReleased
+        tablabol();
+    }//GEN-LAST:event_tblSzavakMouseReleased
+
+    private void tblSzavakKeyReleased(java.awt.event.KeyEvent evt) {//GEN-FIRST:event_tblSzavakKeyReleased
+        if (evt.getKeyCode() == KeyEvent.VK_UP
+                || evt.getKeyCode() == KeyEvent.VK_DOWN
+                || evt.getKeyCode() == KeyEvent.VK_PAGE_UP
+                || evt.getKeyCode() == KeyEvent.VK_PAGE_DOWN)
+            tablabol();
+    }//GEN-LAST:event_tblSzavakKeyReleased
+
+    private void btnUjActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnUjActionPerformed
+        txtAngol.setText("");
+        txtMagyar.setText("");
+        txtLecke.requestFocus();
+        txtLecke.selectAll();
+    }//GEN-LAST:event_btnUjActionPerformed
+
+    private void btnHozzaadActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnHozzaadActionPerformed
+        int n = ab.hozzaad(txtLecke.getText(), txtAngol.getText(), txtMagyar.getText());
+        if (n > 0) {
+        ab.beolvas(tblSzavak, lekerdez());
+        uj_kijelol();
+        txtAngol.requestFocus();
+        txtAngol.selectAll();
+        }
+    }//GEN-LAST:event_btnHozzaadActionPerformed
+
+    private void btnModositActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnModositActionPerformed
+        int m = tblSzavak.getSelectedRow();
+        if (m == -1) return;
+        int szoid = Integer.parseInt(tblSzavak.getValueAt(m, 0).toString());
+        int n = ab.modosit(szoid, txtLecke.getText(), txtAngol.getText(), txtMagyar.getText());
+        if (n > 0) {
+        ab.beolvas(tblSzavak, lekerdez());
+        kijelol(szoid);
+        }
+    }//GEN-LAST:event_btnModositActionPerformed
+
+    private void btnTorolActionPerformed(java.awt.event.ActionEvent evt) {//GEN-FIRST:event_btnTorolActionPerformed
+        int i = tblSzavak.getSelectedRow();
+        if (i == -1) return;
+        ab.torol(Integer.parseInt(tblSzavak.getValueAt(i, 0).toString()));
+        ab.beolvas(tblSzavak, lekerdez());
+    }//GEN-LAST:event_btnTorolActionPerformed
 
     /**
      * @param args the command line arguments
@@ -242,11 +397,11 @@ public class Ablak extends javax.swing.JFrame {
     }
 
     // Variables declaration - do not modify//GEN-BEGIN:variables
-    private javax.swing.JButton jButton1;
-    private javax.swing.JButton jButton2;
-    private javax.swing.JButton jButton3;
-    private javax.swing.JButton jButton4;
-    private javax.swing.JButton jButton5;
+    private javax.swing.JButton btnHozzaad;
+    private javax.swing.JButton btnModosit;
+    private javax.swing.JButton btnSzurok;
+    private javax.swing.JButton btnTorol;
+    private javax.swing.JButton btnUj;
     private javax.swing.JLabel jLabel1;
     private javax.swing.JLabel jLabel2;
     private javax.swing.JLabel jLabel3;
